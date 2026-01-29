@@ -1,163 +1,172 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Gestão de Buffet Rio - Além do Bolo</title>
-  <style>
-    :root{--primaria:#0f172a;--destaque:#10b981;--fundo:#f8fafc;--borda:#e2e8f0;--sucesso:#22c55e}
-    body{font-family:'Segoe UI',sans-serif;margin:0;display:flex;background:var(--fundo);color:#334155}
-    nav{width:320px;background:var(--primaria);height:100vh;position:fixed;padding:18px;color:white;box-shadow:4px 0 10px rgba(0,0,0,.12);overflow:auto}
-    nav h2{font-size:1.1rem;color:var(--destaque);margin-bottom:12px;border-bottom:1px solid #1e293b;padding-bottom:10px}
-    .label-grupo{font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:12px 0 6px}
-    .btn-menu{width:100%;padding:10px;margin-bottom:8px;background:#1e293b;border:0;color:white;text-align:left;border-radius:6px;cursor:pointer;transition:.2s}
-    .btn-menu:hover, .btn-menu.active{background:rgba(16,185,129,0.12);color:var(--destaque);font-weight:600}
-    .btn-cadastrar{background:var(--destaque);color:white;font-weight:bold;margin-top:10px}
-    main{margin-left:360px;padding:28px;width:100%;min-height:100vh}
-    .card{background:white;padding:22px;border-radius:10px;border:1px solid var(--borda);box-shadow:0 4px 6px -1px rgba(0,0,0,.06)}
-    table{width:100%;border-collapse:collapse;margin-top:12px}
-    th{text-align:left;padding:12px;background:#f1f5f9;color:#475569;font-size:.85rem}
-    td{padding:12px;border-bottom:1px solid var(--borda)}
-    input, select{padding:10px;border:1px solid var(--borda);border-radius:6px;width:100%;box-sizing:border-box;margin-bottom:10px}
-    .form-group{margin-bottom:15px}
-    .btn-acao{padding:12px 20px;background:var(--destaque);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
-    .badge{padding:4px 8px;border-radius:4px;font-size:0.75rem;font-weight:bold;background:#e2e8f0}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buffet Rio Pro - Gestão Total</title>
+    <style>
+        :root { --primaria: #0f172a; --destaque: #10b981; --fundo: #f1f5f9; --borda: #cbd5e1; --branco: #ffffff; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; display: flex; background: var(--fundo); color: #1e293b; }
+        
+        /* Menu Lateral */
+        nav { width: 280px; background: var(--primaria); height: 100vh; position: fixed; padding: 25px; color: white; z-index: 100; }
+        nav h2 { font-size: 1.1rem; color: var(--destaque); margin-bottom: 30px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .label-grupo { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; margin: 20px 0 10px; font-weight: bold; }
+        .btn-menu { width: 100%; padding: 12px; margin-bottom: 8px; background: #1e293b; border: none; color: white; text-align: left; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-menu:hover { background: var(--destaque); color: #0f172a; font-weight: bold; }
+        .btn-add { background: #6366f1 !important; margin-top: 20px; font-weight: bold; text-align: center !important; }
+
+        /* Área de Conteúdo */
+        main { margin-left: 310px; padding: 40px; width: calc(100% - 310px); }
+        .card { background: var(--branco); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--borda); }
+        .caminho { margin-bottom: 20px; font-size: 0.9rem; color: #64748b; }
+        .caminho span { cursor: pointer; color: var(--destaque); font-weight: bold; }
+
+        /* Tabelas */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; background: #f8fafc; border-bottom: 2px solid var(--borda); font-size: 0.8rem; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        .linha-clicavel:hover { background: #f8fafc; cursor: pointer; }
+        .info-eletro { font-size: 0.8rem; color: #475569; background: #f1f5f9; padding: 6px 10px; border-radius: 4px; border-left: 3px solid var(--destaque); line-height: 1.4; }
+
+        /* Formulário de Cadastro */
+        #form-cadastro { display: none; margin-bottom: 30px; border: 2px solid #6366f1; }
+        .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input, select, textarea { padding: 10px; border: 1px solid var(--borda); border-radius: 6px; width: 100%; box-sizing: border-box; }
+        .btn-salvar { background: var(--destaque); color: #0f172a; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; grid-column: span 2; }
+        
+        .alerta { color: #ef4444; font-weight: bold; }
+        .btn-qtd { padding: 5px 12px; border: 1px solid #cbd5e1; background: #fff; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
 <body>
-  <nav id="left-nav">
-    <h2>Além do Bolo</h2>
 
-    <div class="label-grupo">Ações Rápidas</div>
-    <button class="btn-menu btn-cadastrar" onclick="renderCadastro()">➕ Novo Item (Auto)</button>
+<nav>
+    <h2>BUFFET RIO PRO</h2>
+    
+    <div class="label-grupo">Gerenciamento</div>
+    <button class="btn-menu btn-add" onclick="abrirForm()">➕ CADASTRAR NOVO ITEM</button>
 
     <div class="label-grupo">Armazenamento</div>
-    <button class="btn-menu" onclick="renderEstoque('Câmara')">📦 Itens de Câmara</button>
-    <button class="btn-menu" onclick="renderEstoque('Freezer')">❄️ Itens de Freezer</button>
-
+    <button class="btn-menu" onclick="trocarCategoria('Câmara')">📦 Itens de Câmara</button>
+    <button class="btn-menu" onclick="trocarCategoria('Freezer')">❄️ Itens de Freezer</button>
+    
     <div class="label-grupo">Operacional</div>
-    <button class="btn-menu" onclick="renderEstoque('Equipamento')">⚡ Equipamentos</button>
-    <button class="btn-menu" onclick="renderEstoque('Material')">🍽️ Materiais</button>
-  </nav>
+    <button class="btn-menu" onclick="trocarCategoria('Equipamento')">⚡ Equipamentos</button>
+    <button class="btn-menu" onclick="trocarCategoria('Material')">🍽️ Materiais / Louças</button>
+</nav>
 
-  <main>
-    <div id="main-card" class="card">
-      <h1>Bem-vindo ao Sistema</h1>
-      <p>Selecione uma categoria ou cadastre um novo item.</p>
+<main>
+    <!-- FORMULÁRIO DE CADASTRO -->
+    <div id="form-cadastro" class="card">
+        <h3>Novo Item no Inventário</h3>
+        <div class="grid-form">
+            <input type="text" id="f-nome" placeholder="Nome do Item (Ex: Carne, Forno, Prato)">
+            <select id="f-cat">
+                <option value="Câmara">Câmara</option>
+                <option value="Freezer">Freezer</option>
+                <option value="Equipamento">Equipamento</option>
+                <option value="Material">Material</option>
+            </select>
+            <input type="text" id="f-setor" placeholder="Setor (Ex: Estante A, Gaveta 2)">
+            <input type="number" id="f-qtd" placeholder="Quantidade Inicial">
+            <input type="number" id="f-min" placeholder="Estoque Mínimo">
+            <textarea id="f-info" placeholder="Informações Técnicas (Voltagem, Manutenção, Observações)" style="grid-column: span 2; height: 60px;"></textarea>
+            <button class="btn-salvar" onclick="salvarItem()">SALVAR NO SISTEMA</button>
+        </div>
     </div>
-  </main>
 
-  <script>
-    // Banco de dados inicial
-    let estoque = JSON.parse(localStorage.getItem('buffet_rio_db')) || [
-      { id:1, cat:"Câmara", nome:"Carne Bovina", qtd:25, min:10, info:"Fria 1" },
-      { id:2, cat:"Equipamento", nome:"Fritadeira", qtd:2, min:1, info:"220V" }
+    <div id="navegacao" class="caminho"></div>
+    <div class="card">
+        <h1 id="titulo-pagina">Controle Operacional</h1>
+        <div id="corpo-pagina">Selecione uma categoria ao lado para gerenciar setores e itens.</div>
+    </div>
+</main>
+
+<script>
+    let estoque = JSON.parse(localStorage.getItem('buffet_rio_v3')) || [
+        { id: 1, cat: "Equipamento", setor: "Cozinha", nome: "Forno Turbo", qtd: 1, min: 1, info: "220V - Trifásico | Manutenção em Março" }
     ];
 
-    // Regras de Classificação Automática
-    const REGRAS = {
-      "Câmara": ["carne", "frango", "peixe", "queijo", "leite", "laticinio", "presunto"],
-      "Freezer": ["polpa", "gelo", "congelado", "sorvete", "açai"],
-      "Equipamento": ["fritadeira", "forno", "liquidificador", "batedeira", "fogão"],
-      "Material": ["prato", "talher", "copo", "taça", "guardanapo", "sousplat"]
-    };
+    let catAtual = "";
+    let setorAtual = "";
 
-    function salvar() {
-      localStorage.setItem('buffet_rio_db', JSON.stringify(estoque));
+    function abrirForm() {
+        const f = document.getElementById('form-cadastro');
+        f.style.display = f.style.display === 'block' ? 'none' : 'block';
     }
 
-    function identificarCategoria(nome) {
-      nome = nome.toLowerCase();
-      for (let cat in REGRAS) {
-        if (REGRAS[cat].some(keyword => nome.includes(keyword))) return cat;
-      }
-      return "Câmara"; // Categoria padrão caso não identifique
+    function salvarItem() {
+        const novo = {
+            id: Date.now(),
+            nome: document.getElementById('f-nome').value,
+            cat: document.getElementById('f-cat').value,
+            setor: document.getElementById('f-setor').value,
+            qtd: parseInt(document.getElementById('f-qtd').value) || 0,
+            min: parseInt(document.getElementById('f-min').value) || 0,
+            info: document.getElementById('f-info').value
+        };
+
+        if(!novo.nome || !novo.setor) { alert("Preencha Nome e Setor!"); return; }
+
+        estoque.push(novo);
+        localStorage.setItem('buffet_rio_v3', JSON.stringify(estoque));
+        alert("Item cadastrado com sucesso!");
+        abrirForm();
+        renderizar();
     }
 
-    function renderCadastro() {
-      const main = document.getElementById('main-card');
-      main.innerHTML = `
-        <h1>Cadastrar Novo Item</h1>
-        <p>O sistema identificará o grupo automaticamente com base no nome.</p>
-        <div class="form-group">
-          <label>Nome do Item</label>
-          <input type="text" id="cad-nome" placeholder="Ex: Carne Bovina, Prato Raso, Polpa de Morango..." onkeyup="sugerirCategoria(this.value)">
-        </div>
-        <div class="form-group">
-          <label>Categoria Detectada</label>
-          <div id="cat-badge" class="badge">Aguardando nome...</div>
-        </div>
-        <div style="display:flex; gap:10px">
-          <div style="flex:1">
-            <label>Qtd Inicial</label>
-            <input type="number" id="cad-qtd" value="0">
-          </div>
-          <div style="flex:1">
-            <label>Mínimo</label>
-            <input type="number" id="cad-min" value="5">
-          </div>
-        </div>
-        <button class="btn-acao" onclick="confirmarCadastro()">Salvar no Sistema</button>
-      `;
+    function trocarCategoria(cat) {
+        catAtual = cat;
+        setorAtual = ""; 
+        renderizar();
     }
 
-    function sugerirCategoria(valor) {
-      const badge = document.getElementById('cat-badge');
-      if(valor.length > 2) {
-        const cat = identificarCategoria(valor);
-        badge.innerText = "Destino: " + cat;
-        badge.style.background = "#10b981";
-        badge.style.color = "white";
-      }
+    function renderizar() {
+        const titulo = document.getElementById('titulo-pagina');
+        const corpo = document.getElementById('corpo-pagina');
+        const navBar = document.getElementById('navegacao');
+
+        if (!catAtual) return;
+
+        if (!setorAtual) {
+            navBar.innerHTML = `<span onclick="catAtual='';renderizar()">Início</span> > <b>${catAtual}</b>`;
+            titulo.innerText = `Setores em: ${catAtual}`;
+            const setores = [...new Set(estoque.filter(i => i.cat === catAtual).map(i => i.setor))];
+            let html = `<table><thead><tr><th>Subdivisão (Estante/Gaveta)</th><th>Ação</th></tr></thead><tbody>`;
+            setores.forEach(s => {
+                html += `<tr class="linha-clicavel" onclick="abrirSetor('${s}')"><td>📂 <b>${s}</b></td><td>Abrir →</td></tr>`;
+            });
+            corpo.innerHTML = html + "</tbody></table>";
+        } else {
+            navBar.innerHTML = `<span onclick="setorAtual='';renderizar()">Início > ${catAtual}</span> > <b>${setorAtual}</b>`;
+            titulo.innerText = `Itens no(a) ${setorAtual}`;
+            const itens = estoque.filter(i => i.cat === catAtual && i.setor === setorAtual);
+            let html = `<table><thead><tr><th>Item</th><th>Qtd</th><th>Informação Técnica/Eletrônica</th><th>Ações</th></tr></thead><tbody>`;
+            itens.forEach(p => {
+                html += `<tr>
+                    <td><b>${p.nome}</b></td>
+                    <td class="${p.qtd <= p.min ? 'alerta' : ''}">${p.qtd}</td>
+                    <td><div class="info-eletro">${p.info || '-'}</div></td>
+                    <td>
+                        <button class="btn-qtd" onclick="ajustar(${p.id}, 1)">+</button>
+                        <button class="btn-qtd" onclick="ajustar(${p.id}, -1)">-</button>
+                    </td>
+                </tr>`;
+            });
+            corpo.innerHTML = html + "</tbody></table>";
+        }
     }
 
-    function confirmarCadastro() {
-      const nome = document.getElementById('cad-nome').value;
-      const qtd = parseInt(document.getElementById('cad-qtd').value);
-      const min = parseInt(document.getElementById('cad-min').value);
-      
-      if(!nome) return alert("Digite um nome!");
+    function abrirSetor(s) { setorAtual = s; renderizar(); }
 
-      const novoItem = {
-        id: Date.now(),
-        nome: nome,
-        cat: identificarCategoria(nome),
-        qtd: qtd,
-        min: min,
-        info: "Cadastro Manual"
-      };
-
-      estoque.push(novoItem);
-      salvar();
-      alert(`Item "${nome}" cadastrado com sucesso em ${novoItem.cat}!`);
-      renderEstoque(novoItem.cat);
+    function ajustar(id, v) {
+        const i = estoque.find(x => x.id === id);
+        i.qtd = Math.max(0, i.qtd + v);
+        localStorage.setItem('buffet_rio_v3', JSON.stringify(estoque));
+        renderizar();
     }
-
-    function renderEstoque(categoria) {
-      const filtrados = estoque.filter(i => i.cat === categoria);
-      const main = document.getElementById('main-card');
-      main.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center">
-          <h1>${categoria}</h1>
-          <button class="btn-acao" style="padding:5px 10px; font-size:0.8rem" onclick="renderCadastro()">+ Adicionar aqui</button>
-        </div>
-        <table>
-          <thead>
-            <tr><th>Item</th><th>Qtd</th><th>Mín</th><th>Status</th></tr>
-          </thead>
-          <tbody>
-            ${filtrados.map(i => `
-              <tr>
-                <td>${i.nome}</td>
-                <td><b>${i.qtd}</b></td>
-                <td>${i.min}</td>
-                <td>${i.qtd < i.min ? '<span style="color:red">⚠️ Baixo</span>' : '✅ OK'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-    }
-  </script>
+</script>
 </body>
 </html>
+
