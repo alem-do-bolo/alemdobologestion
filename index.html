@@ -3,148 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Estoque - Buffet Rio</title>
+    <title>Buffet Rio - Gestão Inteligente</title>
+    <!-- Fontes e Ícones -->
+    <script src="https://unpkg.com"></script>
     <style>
-        :root { --primaria: #0f172a; --destaque: #10b981; --fundo: #f8fafc; --texto: #1e293b; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; background: var(--fundo); color: var(--texto); }
-        
-        /* Menu Lateral */
-        nav { width: 260px; background: var(--primaria); height: 100vh; position: fixed; padding: 20px; color: white; }
-        nav h2 { color: var(--destaque); font-size: 1.1rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        .btn-menu { width: 100%; padding: 12px; margin: 8px 0; background: #1e293b; border: none; color: white; text-align: left; border-radius: 8px; cursor: pointer; }
-        .btn-menu:hover { background: var(--destaque); color: #0f172a; }
+        :root {
+            --bg: #020617; --card: #0f172a; --accent: #3b82f6; 
+            --success: #10b981; --text: #f8fafc; --text-muted: #94a3b8;
+            --border: #1e293b;
+        }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); display: flex; }
 
-        /* Área de Conteúdo */
-        main { margin-left: 280px; padding: 30px; width: 100%; }
-        .caminho { margin-bottom: 15px; font-weight: bold; color: var(--destaque); cursor: pointer; }
-        
-        /* Grid de Pastas/Estantes (Visual para iniciantes) */
-        .grid-mapa { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .card-setor { background: white; padding: 30px; border-radius: 12px; border: 2px solid #e2e8f0; text-align: center; cursor: pointer; transition: 0.3s; }
-        .card-setor:hover { border-color: var(--destaque); transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
-        .card-setor i { font-size: 2rem; display: block; margin-bottom: 10px; }
+        /* Menu Lateral Estilo Lovable */
+        nav { width: 260px; background: var(--card); height: 100vh; position: fixed; border-right: 1px solid var(--border); padding: 24px; }
+        .logo { font-weight: 700; font-size: 1.2rem; color: var(--accent); margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
+        .menu-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 24px 0 12px; }
+        .nav-link { 
+            width: 100%; padding: 10px 12px; border: none; background: transparent; color: var(--text-muted);
+            text-align: left; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; margin-bottom: 4px; transition: 0.2s;
+        }
+        .nav-link:hover, .nav-link.active { background: #1e293b; color: var(--text); }
+        .nav-link.active { border-left: 3px solid var(--accent); }
+
+        /* Main Content */
+        main { margin-left: 300px; padding: 40px; width: 100%; }
+        .breadcrumb { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; cursor: pointer; }
+        .breadcrumb span { color: var(--accent); }
+
+        /* Estética de Cards Visual para Iniciantes */
+        .grid-visual { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .card-setor { 
+            background: var(--card); border: 1px solid var(--border); padding: 32px 24px; border-radius: 16px;
+            text-align: center; cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-setor:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .icon-box { width: 48px; height: 48px; background: #1e293b; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--accent); }
 
         /* Tabela de Itens */
-        .card-itens { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; background: #f1f5f9; font-size: 0.8rem; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
-        .info-box { font-size: 0.75rem; background: #f8fafc; padding: 5px; border-radius: 4px; border-left: 3px solid var(--destaque); color: #64748b; }
+        th { background: #1e293b; padding: 16px; text-align: left; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        td { padding: 16px; border-bottom: 1px solid var(--border); }
+        .qty-badge { background: #1e293b; padding: 4px 12px; border-radius: 6px; font-weight: 600; color: var(--accent); }
+        .info-tag { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: block; border-left: 2px solid var(--accent); padding-left: 8px; }
 
-        /* Modal de Cadastro */
-        #modal-add { display:none; position:fixed; top:10%; left:30%; width:40%; background:white; padding:25px; border-radius:12px; box-shadow:0 0 20px rgba(0,0,0,0.5); z-index:1000; }
-        input, select, textarea { width:100%; padding:10px; margin: 5px 0; border:1px solid #ccc; border-radius:5px; }
+        /* Modal Cadastro */
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card); width: 450px; padding: 32px; border-radius: 20px; border: 1px solid var(--border); }
+        input, select, textarea { 
+            width: 100%; padding: 12px; background: #1e293b; border: 1px solid var(--border); border-radius: 8px; color: white; margin-top: 12px; box-sizing: border-box;
+        }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; margin-top: 24px; cursor: pointer; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <nav>
-    <h2>BUFFET RIO PRO</h2>
-    <button class="btn-menu" style="background:#6366f1" onclick="document.getElementById('modal-add').style.display='block'">➕ NOVO ITEM</button>
-    <p style="font-size:0.7rem; color:#64748b; margin-top:20px">MAPA FÍSICO</p>
-    <button class="btn-menu" onclick="irCat('Câmara')">🧊 CÂMARAS</button>
-    <button class="btn-menu" onclick="irCat('Freezer')">❄️ FREEZERS</button>
-    <button class="btn-menu" onclick="irCat('Equipamento')">⚡ EQUIPAMENTOS</button>
-    <button class="btn-menu" onclick="irCat('Material')">🍽️ MATERIAIS</button>
+    <div class="logo"><i data-lucide="chef-hat"></i> BUFFET RIO</div>
+    
+    <button class="btn-primary" onclick="abrirModal()" style="margin-bottom: 20px;">➕ Novo Cadastro</button>
+
+    <div class="menu-label">Localização Física</div>
+    <button class="nav-link" id="link-Câmara" onclick="navegar('Câmara')"><i data-lucide="refrigerator"></i> Câmaras</button>
+    <button class="nav-link" id="link-Freezer" onclick="navegar('Freezer')"><i data-lucide="snowflake"></i> Freezers</button>
+    <button class="nav-link" id="link-Equipamento" onclick="navegar('Equipamento')"><i data-lucide="zap"></i> Equipamentos</button>
+    <button class="nav-link" id="link-Material" onclick="navegar('Material')"><i data-lucide="package"></i> Materiais</button>
 </nav>
 
 <main>
-    <div id="bread" class="caminho" onclick="reseta()">🏠 INÍCIO</div>
-    <h1 id="titulo">Onde você quer ir hoje?</h1>
-    
-    <div id="conteudo">
-        <!-- O conteúdo muda entre Grid de Estantes e Tabela de Itens -->
-    </div>
+    <div id="breadcrumb" class="breadcrumb" onclick="resetar()">Home</div>
+    <h1 id="view-title" style="margin-bottom: 32px;">Selecione uma área</h1>
+    <div id="view-content"></div>
 </main>
 
-<!-- FORMULARIO -->
-<div id="modal-add">
-    <h3>Cadastrar no Estoque</h3>
-    <input type="text" id="n" placeholder="Nome do Item">
-    <select id="c"><option>Câmara</option><option>Freezer</option><option>Equipamento</option><option>Material</option></select>
-    <input type="text" id="s" placeholder="Estante ou Gaveta (Ex: Estante A)">
-    <input type="number" id="q" placeholder="Quantidade">
-    <textarea id="i" placeholder="Dados Eletrônicos (Voltagem, etc)"></textarea>
-    <button onclick="salvar()" style="width:100%; padding:10px; background:var(--destaque); border:none; cursor:pointer">SALVAR</button>
-    <button onclick="document.getElementById('modal-add').style.display='none'" style="width:100%; margin-top:5px">CANCELAR</button>
+<!-- Modal Cadastro -->
+<div id="modal">
+    <div class="modal-content">
+        <h3>Novo Item</h3>
+        <input type="text" id="add-nome" placeholder="Nome do Produto">
+        <select id="add-cat">
+            <option value="Câmara">Câmara</option>
+            <option value="Freezer">Freezer</option>
+            <option value="Equipamento">Equipamento</option>
+            <option value="Material">Material</option>
+        </select>
+        <input type="text" id="add-setor" placeholder="Estante ou Gaveta (Ex: Prateleira 2)">
+        <input type="number" id="add-qtd" placeholder="Quantidade Inicial">
+        <textarea id="add-info" placeholder="Informação Eletrônica (Voltagem, etc)"></textarea>
+        <button class="btn-primary" onclick="salvar()">Salvar no Inventário</button>
+        <button onclick="abrirModal()" style="background:none; border:none; color:var(--text-muted); width:100%; margin-top:10px; cursor:pointer;">Cancelar</button>
+    </div>
 </div>
 
 <script>
-    let estoque = JSON.parse(localStorage.getItem('buffet_mapa')) || [
-        { id:1, cat:'Câmara', setor:'Estante A (Frios)', nome:'Queijo Minas', qtd:10, info:'Temp: 4°C' },
-        { id:2, cat:'Equipamento', setor:'Área de Cocção', nome:'Forno', qtd:1, info:'220V | Bifásico' }
+    let db = JSON.parse(localStorage.getItem('buffet_rio_v4')) || [
+        { id: 1, cat: 'Câmara', setor: 'Estante de Carnes', nome: 'Picanha RJ', qtd: 15, info: 'Temperatura: -2°C' },
+        { id: 2, cat: 'Equipamento', setor: 'Cozinha 1', nome: 'Fritadeira', qtd: 2, info: '110V | Limpeza Diária' }
     ];
 
-    let catSel = "";
-    let setorSel = "";
+    let catAtiva = "";
+    let setorAtivo = "";
 
-    function irCat(c) { catSel = c; setorSel = ""; render(); }
-    function irSetor(s) { setorSel = s; render(); }
-    function reseta() { catSel = ""; setorSel = ""; render(); }
-
-    function render() {
-        const t = document.getElementById('titulo');
-        const c = document.getElementById('conteudo');
-        const b = document.getElementById('bread');
-
-        if(!catSel) {
-            t.innerText = "Selecione uma categoria ao lado";
-            c.innerHTML = "<p>Clique em uma das opções no menu para ver o mapa do estoque.</p>";
-            return;
-        }
-
-        if(!setorSel) {
-            b.innerText = `🏠 INÍCIO > ${catSel.toUpperCase()}`;
-            t.innerText = `Em qual setor da ${catSel} você vai mexer?`;
-            const setores = [...new Set(estoque.filter(i => i.cat === catSel).map(i => i.setor))];
-            
-            let html = '<div class="grid-mapa">';
-            setores.forEach(s => {
-                html += `<div class="card-setor" onclick="irSetor('${s}')">
-                            <span>📂</span><br><b>${s}</b><br>
-                            <small>${estoque.filter(i => i.setor === s).length} itens aqui</small>
-                         </div>`;
-            });
-            c.innerHTML = html + '</div>';
-        } else {
-            b.innerHTML = `<span onclick="irCat('${catSel}')">🏠 INÍCIO > ${catSel.toUpperCase()}</span> > ${setorSel.toUpperCase()}`;
-            t.innerText = `Itens dentro de: ${setorSel}`;
-            
-            const itens = estoque.filter(i => i.cat === catSel && i.setor === setorSel);
-            let html = '<div class="card-itens"><table><thead><tr><th>Item</th><th>Qtd</th><th>Dados Eletrônicos/Técnicos</th><th>Ação</th></tr></thead><tbody>';
-            itens.forEach(p => {
-                html += `<tr>
-                            <td><b>${p.nome}</b></td>
-                            <td>${p.qtd}</td>
-                            <td><div class="info-box">${p.info || '-'}</div></td>
-                            <td>
-                                <button onclick="mudar(${p.id}, 1)">+</button>
-                                <button onclick="mudar(${p.id}, -1)">-</button>
-                            </td>
-                         </tr>`;
-            });
-            c.innerHTML = html + '</tbody></table></div>';
-        }
-    }
-
-    function mudar(id, v) {
-        const i = estoque.find(x => x.id === id);
-        i.qtd = Math.max(0, i.qtd + v);
-        localStorage.setItem('buffet_mapa', JSON.stringify(estoque));
+    function navegar(c) {
+        catAtiva = c; setorAtivo = "";
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.getElementById('link-'+c).classList.add('active');
         render();
     }
 
+    function abrirSetor(s) { setorAtivo = s; render(); }
+    function resetar() { catAtiva = ""; setorAtivo = ""; render(); }
+
+    function render() {
+        const title = document.getElementById('view-title');
+        const content = document.getElementById('view-content');
+        const bread = document.getElementById('breadcrumb');
+
+        if (!catAtiva) {
+            title.innerText = "Bem-vindo ao Buffet Rio";
+            content.innerHTML = `<p style="color:var(--text-muted)">Selecione uma categoria no menu para localizar os itens fisicamente.</p>`;
+            return;
+        }
+
+        if (!setorAtivo) {
+            bread.innerHTML = `<span onclick="resetar()">Home</span> / ${catAtiva}`;
+            title.innerText = `Onde na ${catAtiva} você está?`;
+            const setores = [...new Set(db.filter(i => i.cat === catAtiva).map(i => i.setor))];
+            
+            let html = '<div class="grid-visual">';
+            setores.forEach(s => {
+                html += `
+                <div class="card-setor" onclick="abrirSetor('${s}')">
+                    <div class="icon-box"><i data-lucide="folder"></i></div>
+                    <div style="font-weight:600; font-size:1.1rem">${s}</div>
+                    <div style="color:var(--text-muted); font-size:0.85rem; margin-top:8px">${db.filter(i => i.setor === s).length} itens cadastrados</div>
+                </div>`;
+            });
+            content.innerHTML = html + '</div>';
+        } else {
+            bread.innerHTML = `<span onclick="resetar()">Home</span> / <span onclick="navegar('${catAtiva}')">${catAtiva}</span> / ${setorAtivo}`;
+            title.innerText = `Produtos em: ${setorAtivo}`;
+            
+            const itens = db.filter(i => i.cat === catAtiva && i.setor === setorAtivo);
+            let html = `
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Item</th><th>Quantidade</th><th>Especificações</th><th>Controle</th></tr></thead>
+                    <tbody>`;
+            itens.forEach(p => {
+                html += `
+                <tr>
+                    <td><div style="font-weight:600">${p.nome}</div></td>
+                    <td><span class="qty-badge">${p.qtd}</span></td>
+                    <td><span class="info-tag">${p.info || 'Nenhuma informação eletrônica'}</span></td>
+                    <td>
+                        <button onclick="mudar(${p.id}, 1)" style="padding:4px 8px; cursor:pointer">+</button>
+                        <button onclick="mudar(${p.id}, -1)" style="padding:4px 8px; cursor:pointer">-</button>
+                    </td>
+                </tr>`;
+            });
+            content.innerHTML = html + '</tbody></table></div>';
+        }
+        lucide.createIcons();
+    }
+
+    function mudar(id, v) {
+        const i = db.find(x => x.id === id);
+        i.qtd = Math.max(0, i.qtd + v);
+        localStorage.setItem('buffet_rio_v4', JSON.stringify(db));
+        render();
+    }
+
+    function abrirModal() {
+        const m = document.getElementById('modal');
+        m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+    }
+
     function salvar() {
-        estoque.push({
+        db.push({
             id: Date.now(),
-            nome: document.getElementById('n').value,
-            cat: document.getElementById('c').value,
-            setor: document.getElementById('s').value,
-            qtd: parseInt(document.getElementById('q').value) || 0,
-            info: document.getElementById('i').value
+            nome: document.getElementById('add-nome').value,
+            cat: document.getElementById('add-cat').value,
+            setor: document.getElementById('add-setor').value,
+            qtd: parseInt(document.getElementById('add-qtd').value) || 0,
+            info: document.getElementById('add-info').value
         });
-        localStorage.setItem('buffet_mapa', JSON.stringify(estoque));
-        document.getElementById('modal-add').style.display='none';
+        localStorage.setItem('buffet_rio_v4', JSON.stringify(db));
+        abrirModal();
         render();
     }
 
